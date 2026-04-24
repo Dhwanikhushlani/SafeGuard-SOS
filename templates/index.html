@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SafeGuard SOS — Women Safety App</title>
+<style>
+  :root {
+    --red:    #e63946;
+    --red2:   #c1121f;
+    --dark:   #0d0d0d;
+    --card:   #1a1a1a;
+    --border: #2a2a2a;
+    --text:   #f1f1f1;
+    --muted:  #888;
+    --green:  #2dc653;
+    --yellow: #f4a261;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--dark);
+    color: var(--text);
+    font-family: 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── Header ── */
+  header {
+    width:100%;
+    background: linear-gradient(135deg, #1a0000, #2d0000);
+    border-bottom: 1px solid #3a0000;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  header h1 { font-size:1.2rem; color:var(--red); font-weight:700; }
+  header h1 span { color:var(--text); }
+  .setup-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 6px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .setup-btn:hover { border-color:var(--red); color:var(--text); }
+
+  /* ── Status bar ── */
+  #statusBar {
+    width:100%;
+    padding: 8px 24px;
+    text-align:center;
+    font-size:0.8rem;
+    font-weight:600;
+    background: #1a1a00;
+    color: var(--yellow);
+    border-bottom: 1px solid #333300;
+    display:none;
+  }
+  #statusBar.ok    { background:#001a00; color:var(--green); border-color:#003300; }
+  #statusBar.error { background:#1a0000; color:var(--red);   border-color:#3a0000; }
+
+  /* ── Main content ── */
+  .main {
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding: 30px 20px;
+    width:100%;
+    max-width:480px;
+  }
+
+  /* ── SOS Button ── */
+  .sos-wrap {
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-bottom:32px;
+  }
+  .sos-ring {
+    position:absolute;
+    width:220px; height:220px;
+    border-radius:50%;
+    border:3px solid var(--red);
+    opacity:0.3;
+    animation: ring-pulse 2s ease-in-out infinite;
+  }
+  .sos-ring-2 {
+    position:absolute;
+    width:260px; height:260px;
+    border-radius:50%;
+    border:2px solid var(--red);
+    opacity:0.15;
+    animation: ring-pulse 2s ease-in-out infinite 0.4s;
+  }
+  @keyframes ring-pulse {
+    0%,100%{ transform:scale(1); opacity:0.3; }
+    50%    { transform:scale(1.06); opacity:0.1; }
+  }
+  #sosBtn {
+    position:relative;
+    width:180px; height:180px;
+    border-radius:50%;
+    background: radial-gradient(circle at 38% 38%, #ff2a2a, #8b0000);
+    border: 4px solid #ff4444;
+    box-shadow: 0 0 40px rgba(230,57,70,0.5), 0 0 80px rgba(230,57,70,0.2);
+    cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    transition: transform 0.1s, box-shadow 0.2s;
+    user-select:none;
+    -webkit-user-select:none;
+  }
+  #sosBtn:active, #sosBtn.pressing {
+    transform:scale(0.95);
+    box-shadow: 0 0 60px rgba(230,57,70,0.8), 0 0 100px rgba(230,57,70,0.4);
+  }
+  #sosBtn .sos-text  { font-size:3rem; font-weight:900; color:#fff; letter-spacing:2px; line-height:1; }
+  #sosBtn .sos-sub   { font-size:0.7rem; color:rgba(255,255,255,0.75); margin-top:4px; letter-spacing:1px; }
+
+  /* ── Progress ring (holds 3 sec) ── */
+  .progress-ring-svg {
+    position:absolute;
+    width:200px; height:200px;
+    transform:rotate(-90deg);
+    pointer-events:none;
+  }
+  #progressCircle {
+    fill:none;
+    stroke:#ff4444;
+    stroke-width:5;
+    stroke-dasharray: 565;
+    stroke-dashoffset: 565;
+    stroke-linecap:round;
+    transition: stroke-dashoffset 0.05s linear;
+  }
+
+  /* ── Instruction card ── */
+  .instruction-card {
+    background: var(--card);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:20px 24px;
+    width:100%;
+    margin-bottom:20px;
+    text-align:center;
+  }
+  .instruction-card h2 { font-size:1rem; margin-bottom:12px; color:var(--text); }
+  .steps { display:flex; flex-direction:column; gap:10px; }
+  .step {
+    display:flex; align-items:center; gap:12px;
+    background:#111; border-radius:10px; padding:10px 14px;
+    text-align:left;
+  }
+  .step-icon { font-size:1.3rem; flex-shrink:0; }
+  .step-text { font-size:0.82rem; color:var(--muted); line-height:1.4; }
+  .step-text strong { color:var(--text); display:block; margin-bottom:2px; }
+
+  /* ── Info cards ── */
+  .info-row { display:flex; gap:12px; width:100%; margin-bottom:16px; }
+  .info-card {
+    flex:1;
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:14px;
+    text-align:center;
+  }
+  .info-card .i-icon { font-size:1.4rem; margin-bottom:6px; }
+  .info-card .i-label { font-size:0.7rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; }
+  .info-card .i-value { font-size:0.85rem; font-weight:600; margin-top:4px; }
+  .i-green { color:var(--green); }
+  .i-red   { color:var(--red); }
+  .i-yellow{ color:var(--yellow); }
+
+  /* ── Sending overlay ── */
+  #sendingOverlay {
+    display:none;
+    position:fixed; inset:0;
+    background:rgba(0,0,0,0.92);
+    z-index:999;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:20px;
+  }
+  #sendingOverlay.show { display:flex; }
+  .sending-spinner {
+    width:60px; height:60px;
+    border:5px solid rgba(255,255,255,0.1);
+    border-top-color:var(--red);
+    border-radius:50%;
+    animation:spin 0.8s linear infinite;
+  }
+  @keyframes spin { to{transform:rotate(360deg)} }
+  #sendingMsg { font-size:1.1rem; font-weight:600; color:var(--text); }
+  #sendingDetail { font-size:0.85rem; color:var(--muted); }
+
+  /* ── Success overlay ── */
+  #successOverlay {
+    display:none;
+    position:fixed; inset:0;
+    background:rgba(0,0,0,0.95);
+    z-index:999;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:16px;
+    padding:30px;
+  }
+  #successOverlay.show { display:flex; }
+  .success-icon { font-size:4rem; }
+  #successOverlay h2 { font-size:1.5rem; color:var(--green); text-align:center; }
+  #successOverlay p  { font-size:0.9rem; color:var(--muted); text-align:center; max-width:300px; }
+  .dismiss-btn {
+    background:var(--red); color:#fff; border:none;
+    padding:14px 32px; border-radius:12px; font-size:1rem;
+    font-weight:700; cursor:pointer; margin-top:10px;
+    transition:opacity 0.2s;
+  }
+  .dismiss-btn:hover { opacity:0.85; }
+
+  /* ── Keyboard hint ── */
+  .kb-hint {
+    font-size:0.75rem; color:var(--muted);
+    margin-top:8px; text-align:center;
+  }
+  .kb-hint kbd {
+    background:#222; border:1px solid #444;
+    border-radius:4px; padding:2px 8px; font-family:monospace;
+  }
+
+  /* ── Footer ── */
+  footer {
+    padding:16px; font-size:0.72rem; color:var(--muted); text-align:center;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🛡️ Safe<span>Guard</span> SOS</h1>
+  <a href="/setup" class="setup-btn">⚙️ Setup Contacts</a>
+</header>
+
+<div id="statusBar">Checking configuration...</div>
+
+<div class="main">
+
+  <!-- SOS BUTTON -->
+  <div class="sos-wrap">
+    <div class="sos-ring-2"></div>
+    <div class="sos-ring"></div>
+    <svg class="progress-ring-svg" viewBox="0 0 200 200">
+      <circle id="progressCircle" cx="100" cy="100" r="90"/>
+    </svg>
+    <button id="sosBtn"
+      onmousedown="startSOS()" onmouseup="cancelSOS()" onmouseleave="cancelSOS()"
+      ontouchstart="startSOS(event)" ontouchend="cancelSOS()" ontouchcancel="cancelSOS()">
+      <span class="sos-text">SOS</span>
+      <span class="sos-sub" id="sosBtnSub">HOLD 3 SECONDS</span>
+    </button>
+  </div>
+
+  <p class="kb-hint">On laptop: hold <kbd>Space</kbd> for 3 seconds</p>
+
+  <!-- STATUS CARDS -->
+  <div class="info-row" style="margin-top:20px;">
+    <div class="info-card">
+      <div class="i-icon">📍</div>
+      <div class="i-label">Location</div>
+      <div class="i-value" id="locationStatus">Checking...</div>
+    </div>
+    <div class="info-card">
+      <div class="i-icon">🎙️</div>
+      <div class="i-label">Microphone</div>
+      <div class="i-value" id="micStatus">Not ready</div>
+    </div>
+    <div class="info-card">
+      <div class="i-icon">📧</div>
+      <div class="i-label">Contacts</div>
+      <div class="i-value" id="contactStatus">Checking...</div>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <div class="instruction-card">
+    <h2>How It Works</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-icon">⏱️</div>
+        <div class="step-text">
+          <strong>Hold SOS button for 3 seconds</strong>
+          Button on screen OR hold Spacebar on keyboard
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-icon">🎙️</div>
+        <div class="step-text">
+          <strong>10-second audio is recorded</strong>
+          Captures surrounding sounds automatically
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-icon">📍</div>
+        <div class="step-text">
+          <strong>GPS location is captured</strong>
+          Exact coordinates with Google Maps link
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-icon">📧</div>
+        <div class="step-text">
+          <strong>Emergency email sent instantly</strong>
+          To all 3 contacts + nearest police email
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- SENDING OVERLAY -->
+<div id="sendingOverlay">
+  <div class="sending-spinner"></div>
+  <div id="sendingMsg">Sending SOS Alert...</div>
+  <div id="sendingDetail">Recording audio & capturing location</div>
+</div>
+
+<!-- SUCCESS OVERLAY -->
+<div id="successOverlay">
+  <div class="success-icon">✅</div>
+  <h2>SOS Sent Successfully!</h2>
+  <p id="successDetail">Your emergency contacts have been notified with your location and audio recording.</p>
+  <button class="dismiss-btn" onclick="dismissSuccess()">I Am Safe — Dismiss</button>
+</div>
+
+<footer>SafeGuard SOS — Your safety is our priority 🛡️</footer>
+
+<script>
+// ── State ───────────────────────────────────────────────────────────────────
+let holdTimer     = null;
+let holdStart     = null;
+let holdInterval  = null;
+let HOLD_DURATION = 3000; // 3 seconds
+let currentLat    = null;
+let currentLng    = null;
+let mediaRecorder = null;
+let audioChunks   = [];
+let isConfigured  = false;
+let spaceHeld     = false;
+
+const CIRCUMFERENCE = 2 * Math.PI * 90; // 565.48
+
+// ── Init ────────────────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  checkConfig();
+  initLocation();
+  initMicrophone();
+});
+
+// ── Keyboard support ────────────────────────────────────────────────────────
+document.addEventListener('keydown', (e) => {
+  if (e.code === 'Space' && !spaceHeld) {
+    e.preventDefault();
+    spaceHeld = true;
+    startSOS();
+  }
+});
+document.addEventListener('keyup', (e) => {
+  if (e.code === 'Space') {
+    e.preventDefault();
+    spaceHeld = false;
+    cancelSOS();
+  }
+});
+
+// ── Config check ────────────────────────────────────────────────────────────
+async function checkConfig() {
+  try {
+    const r = await fetch('/api/get_contacts');
+    const d = await r.json();
+    isConfigured = d.configured;
+    const bar = document.getElementById('statusBar');
+    bar.style.display = 'block';
+    if (isConfigured) {
+      bar.textContent = `✅ Ready — Contacts configured for ${d.sender_name || 'user'}`;
+      bar.className = 'ok';
+      document.getElementById('contactStatus').textContent = `${(d.contacts||[]).length} saved`;
+      document.getElementById('contactStatus').className = 'i-value i-green';
+    } else {
+      bar.textContent = '⚠️ Please setup emergency contacts first!';
+      bar.className = 'error';
+      document.getElementById('contactStatus').textContent = 'Not set';
+      document.getElementById('contactStatus').className = 'i-value i-red';
+    }
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+// ── Location ────────────────────────────────────────────────────────────────
+function initLocation() {
+  if (!navigator.geolocation) {
+    setLocationStatus('Not supported', 'i-red');
+    return;
+  }
+  navigator.geolocation.watchPosition(
+    (pos) => {
+      currentLat = pos.coords.latitude.toFixed(6);
+      currentLng = pos.coords.longitude.toFixed(6);
+      setLocationStatus('Live ✓', 'i-green');
+    },
+    () => setLocationStatus('Denied ✗', 'i-red'),
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
+}
+function setLocationStatus(text, cls) {
+  const el = document.getElementById('locationStatus');
+  el.textContent = text;
+  el.className = 'i-value ' + cls;
+}
+
+// ── Microphone ───────────────────────────────────────────────────────────────
+async function initMicrophone() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    stream.getTracks().forEach(t => t.stop());
+    document.getElementById('micStatus').textContent = 'Ready ✓';
+    document.getElementById('micStatus').className = 'i-value i-green';
+  } catch(e) {
+    document.getElementById('micStatus').textContent = 'Denied ✗';
+    document.getElementById('micStatus').className = 'i-value i-red';
+  }
+}
+
+// ── SOS Hold Logic ───────────────────────────────────────────────────────────
+function startSOS(e) {
+  if (e && e.preventDefault) e.preventDefault();
+  if (holdTimer) return;
+
+  holdStart = Date.now();
+  document.getElementById('sosBtn').classList.add('pressing');
+
+  // Progress animation
+  holdInterval = setInterval(() => {
+    const elapsed  = Date.now() - holdStart;
+    const progress = Math.min(elapsed / HOLD_DURATION, 1);
+    const offset   = CIRCUMFERENCE * (1 - progress);
+    document.getElementById('progressCircle').style.strokeDashoffset = offset;
+    const remaining = Math.ceil((HOLD_DURATION - elapsed) / 1000);
+    document.getElementById('sosBtnSub').textContent = remaining > 0 ? `HOLD ${remaining}...` : 'RELEASING...';
+  }, 50);
+
+  // Fire after 3 seconds
+  holdTimer = setTimeout(() => {
+    clearInterval(holdInterval);
+    triggerSOS();
+  }, HOLD_DURATION);
+}
+
+function cancelSOS() {
+  if (!holdTimer) return;
+  clearTimeout(holdTimer);
+  clearInterval(holdInterval);
+  holdTimer    = null;
+  holdStart    = null;
+  document.getElementById('sosBtn').classList.remove('pressing');
+  document.getElementById('progressCircle').style.strokeDashoffset = CIRCUMFERENCE;
+  document.getElementById('sosBtnSub').textContent = 'HOLD 3 SECONDS';
+}
+
+// ── Trigger SOS ──────────────────────────────────────────────────────────────
+async function triggerSOS() {
+  holdTimer = null;
+  document.getElementById('sosBtn').classList.remove('pressing');
+  document.getElementById('progressCircle').style.strokeDashoffset = CIRCUMFERENCE;
+  document.getElementById('sosBtnSub').textContent = 'HOLD 3 SECONDS';
+
+  if (!isConfigured) {
+    alert('⚠️ Please setup your emergency contacts first!\nClick "Setup Contacts" in the top right.');
+    return;
+  }
+
+  showSending('🎙️ Recording audio for 10 seconds...', 'Please stay near the phone');
+
+  // Record 10 seconds of audio
+  let audioB64 = null;
+  try {
+    audioB64 = await recordAudio(10000);
+  } catch(e) {
+    console.warn('Audio recording failed:', e);
+  }
+
+  showSending('📍 Capturing your location...', 'Getting GPS coordinates');
+
+  // Get precise location
+  let lat = currentLat || 'Unknown';
+  let lng = currentLng || 'Unknown';
+
+  if (navigator.geolocation && lat === 'Unknown') {
+    try {
+      const pos = await new Promise((res, rej) =>
+        navigator.geolocation.getCurrentPosition(res, rej, { enableHighAccuracy:true, timeout:8000 })
+      );
+      lat = pos.coords.latitude.toFixed(6);
+      lng = pos.coords.longitude.toFixed(6);
+    } catch(e) { console.warn('Location fetch failed'); }
+  }
+
+  showSending('📧 Sending SOS emails...', `Location: ${lat}, ${lng}`);
+
+  // Send SOS
+  try {
+    const res = await fetch('/api/send_sos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lat, lng, audio: audioB64 })
+    });
+    const data = await res.json();
+    hideSending();
+
+    if (data.status === 'success') {
+      showSuccess(`SOS sent to ${data.sent} contact(s)! They have your GPS location${audioB64 ? ' and audio recording' : ''}.`);
+    } else {
+      alert('❌ Failed to send SOS: ' + data.message + '\n\nPlease call emergency services directly!');
+    }
+  } catch(e) {
+    hideSending();
+    alert('❌ Network error! Please call emergency services directly: 112');
+  }
+}
+
+// ── Audio Recording ──────────────────────────────────────────────────────────
+function recordAudio(durationMs) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      const chunks  = [];
+
+      recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
+      recorder.onstop = () => {
+        stream.getTracks().forEach(t => t.stop());
+        const blob   = new Blob(chunks, { type: 'audio/webm' });
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror   = reject;
+        reader.readAsDataURL(blob);
+      };
+
+      recorder.start();
+      setTimeout(() => recorder.stop(), durationMs);
+    } catch(e) {
+      reject(e);
+    }
+  });
+}
+
+// ── UI Helpers ───────────────────────────────────────────────────────────────
+function showSending(msg, detail) {
+  document.getElementById('sendingMsg').textContent    = msg;
+  document.getElementById('sendingDetail').textContent = detail;
+  document.getElementById('sendingOverlay').classList.add('show');
+}
+function hideSending() {
+  document.getElementById('sendingOverlay').classList.remove('show');
+}
+function showSuccess(detail) {
+  document.getElementById('successDetail').textContent = detail;
+  document.getElementById('successOverlay').classList.add('show');
+}
+function dismissSuccess() {
+  document.getElementById('successOverlay').classList.remove('show');
+}
+</script>
+</body>
+</html>

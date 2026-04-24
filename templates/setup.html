@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Setup — SafeGuard SOS</title>
+<style>
+  :root {
+    --red:#e63946; --dark:#0d0d0d; --card:#1a1a1a;
+    --border:#2a2a2a; --text:#f1f1f1; --muted:#888;
+    --green:#2dc653; --input-bg:#111;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--dark); color:var(--text); font-family:'Segoe UI',sans-serif; min-height:100vh; }
+  header {
+    background:linear-gradient(135deg,#1a0000,#2d0000);
+    border-bottom:1px solid #3a0000;
+    padding:14px 24px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  header h1 { font-size:1.2rem; color:var(--red); font-weight:700; }
+  .back-btn {
+    background:transparent; border:1px solid var(--border); color:var(--muted);
+    padding:6px 14px; border-radius:8px; cursor:pointer;
+    font-size:0.8rem; text-decoration:none; transition:all 0.2s;
+  }
+  .back-btn:hover { border-color:var(--red); color:var(--text); }
+  .container { max-width:600px; margin:0 auto; padding:24px 20px; }
+  h2 { font-size:1.1rem; margin-bottom:6px; }
+  .section-desc { font-size:0.82rem; color:var(--muted); margin-bottom:16px; line-height:1.5; }
+  .card {
+    background:var(--card); border:1px solid var(--border);
+    border-radius:16px; padding:22px; margin-bottom:20px;
+  }
+  .card-title {
+    font-size:0.95rem; font-weight:700; margin-bottom:4px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .field { margin-bottom:14px; }
+  label { display:block; font-size:0.78rem; color:var(--muted); margin-bottom:5px; text-transform:uppercase; letter-spacing:0.4px; }
+  input[type=text], input[type=email], input[type=password] {
+    width:100%; background:var(--input-bg); border:1px solid var(--border);
+    color:var(--text); padding:10px 14px; border-radius:8px;
+    font-size:0.9rem; outline:none; transition:border 0.2s;
+  }
+  input:focus { border-color:var(--red); }
+  .contact-group { display:flex; gap:10px; margin-bottom:10px; }
+  .contact-group input { flex:1; }
+  .contact-num {
+    width:28px; height:28px; background:#2a0000; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:0.75rem; font-weight:700; color:var(--red);
+    flex-shrink:0; margin-top:10px;
+  }
+  .note {
+    background:#111; border:1px solid #222; border-radius:8px;
+    padding:10px 14px; font-size:0.78rem; color:var(--muted);
+    line-height:1.5; margin-top:10px;
+  }
+  .note a { color:var(--red); }
+  .save-btn {
+    width:100%; background:var(--red); color:#fff; border:none;
+    padding:14px; border-radius:12px; font-size:1rem; font-weight:700;
+    cursor:pointer; transition:opacity 0.2s; margin-top:4px;
+  }
+  .save-btn:hover { opacity:0.85; }
+  #saveMsg {
+    display:none; text-align:center; padding:12px;
+    border-radius:10px; font-size:0.9rem; font-weight:600; margin-top:12px;
+  }
+  #saveMsg.ok    { background:#001a00; color:var(--green); border:1px solid #003300; }
+  #saveMsg.error { background:#1a0000; color:var(--red);   border:1px solid #3a0000; }
+  .test-btn {
+    width:100%; background:transparent; color:var(--muted);
+    border:1px solid var(--border); padding:10px; border-radius:10px;
+    font-size:0.85rem; cursor:pointer; transition:all 0.2s; margin-top:8px;
+  }
+  .test-btn:hover { border-color:var(--green); color:var(--green); }
+</style>
+</head>
+<body>
+<header>
+  <h1>⚙️ Setup Emergency Contacts</h1>
+  <a href="/" class="back-btn">← Back to SOS</a>
+</header>
+
+<div class="container">
+
+  <!-- Gmail Setup -->
+  <div class="card">
+    <div class="card-title">📧 Gmail Sender Account</div>
+    <p class="section-desc">This Gmail account will be used to send SOS emails. Use a dedicated account or your own Gmail with App Password.</p>
+    <div class="field">
+      <label>Your Name (appears in email)</label>
+      <input type="text" id="senderName" placeholder="e.g. Priya Sharma"/>
+    </div>
+    <div class="field">
+      <label>Gmail Address</label>
+      <input type="email" id="senderEmail" placeholder="yourname@gmail.com"/>
+    </div>
+    <div class="field">
+      <label>Gmail App Password (16 characters)</label>
+      <input type="password" id="senderPassword" placeholder="xxxx xxxx xxxx xxxx"/>
+    </div>
+    <div class="note">
+      ⚠️ Use a <strong>Gmail App Password</strong>, NOT your regular Gmail password.<br>
+      To get one: Gmail → Settings → Security → 2-Step Verification → App Passwords → Generate.<br>
+      <a href="https://myaccount.google.com/apppasswords" target="_blank">Click here to generate App Password →</a>
+    </div>
+  </div>
+
+  <!-- Emergency Contacts -->
+  <div class="card">
+    <div class="card-title">🚨 Emergency Contacts (up to 3)</div>
+    <p class="section-desc">These people will receive your SOS email with location and audio when you trigger the alert.</p>
+    <div class="contact-group">
+      <div class="contact-num">1</div>
+      <div style="flex:1">
+        <div class="field" style="margin-bottom:0">
+          <label>Contact 1 Email</label>
+          <input type="email" id="contact1" placeholder="mom@gmail.com"/>
+        </div>
+      </div>
+    </div>
+    <div class="contact-group">
+      <div class="contact-num">2</div>
+      <div style="flex:1">
+        <div class="field" style="margin-bottom:0">
+          <label>Contact 2 Email</label>
+          <input type="email" id="contact2" placeholder="friend@gmail.com"/>
+        </div>
+      </div>
+    </div>
+    <div class="contact-group">
+      <div class="contact-num">3</div>
+      <div style="flex:1">
+        <div class="field" style="margin-bottom:0">
+          <label>Contact 3 Email (optional)</label>
+          <input type="email" id="contact3" placeholder="brother@gmail.com"/>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Police Email -->
+  <div class="card">
+    <div class="card-title">👮 Police / Authority Email (optional)</div>
+    <p class="section-desc">Add a local police station email or women helpline email that will also receive the SOS alert.</p>
+    <div class="field">
+      <label>Police / Helpline Email</label>
+      <input type="email" id="policeEmail" placeholder="police.station@gov.in (optional)"/>
+    </div>
+    <div class="note">
+      📞 National Women Helpline: <strong>1091</strong><br>
+      📞 Emergency: <strong>112</strong><br>
+      📞 Police: <strong>100</strong>
+    </div>
+  </div>
+
+  <button class="save-btn" onclick="saveContacts()">💾 Save All Contacts</button>
+  <button class="test-btn" onclick="testSetup()">🧪 Send Test Email to Verify Setup</button>
+  <div id="saveMsg"></div>
+
+</div>
+
+<script>
+window.addEventListener('load', loadExisting);
+
+async function loadExisting() {
+  try {
+    const r = await fetch('/api/get_contacts');
+    const d = await r.json();
+    if (d.sender_name)  document.getElementById('senderName').value  = d.sender_name  || '';
+    if (d.sender_email) document.getElementById('senderEmail').value = d.sender_email || '';
+    const contacts = d.contacts || [];
+    if (contacts[0]) document.getElementById('contact1').value = contacts[0];
+    if (contacts[1]) document.getElementById('contact2').value = contacts[1];
+    if (contacts[2]) document.getElementById('contact3').value = contacts[2];
+    if (d.police_email) document.getElementById('policeEmail').value = d.police_email || '';
+  } catch(e) {}
+}
+
+async function saveContacts() {
+  const senderEmail = document.getElementById('senderEmail').value.trim();
+  const senderPass  = document.getElementById('senderPassword').value.trim();
+  const senderName  = document.getElementById('senderName').value.trim();
+  const c1 = document.getElementById('contact1').value.trim();
+  const c2 = document.getElementById('contact2').value.trim();
+  const c3 = document.getElementById('contact3').value.trim();
+  const police = document.getElementById('policeEmail').value.trim();
+
+  if (!senderEmail || !senderName) {
+    showMsg('Please enter your name and Gmail address!', 'error');
+    return;
+  }
+  if (!c1) {
+    showMsg('Please enter at least 1 emergency contact email!', 'error');
+    return;
+  }
+
+  const contacts = [c1, c2, c3].filter(Boolean);
+  const payload  = {
+    sender_name: senderName,
+    sender_email: senderEmail,
+    sender_password: senderPass,
+    contacts,
+    police_email: police
+  };
+
+  try {
+    const r = await fetch('/api/save_contacts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const d = await r.json();
+    if (d.status === 'saved') {
+      showMsg('✅ Contacts saved successfully! Go back to SOS page.', 'ok');
+    }
+  } catch(e) {
+    showMsg('Error saving contacts: ' + e.message, 'error');
+  }
+}
+
+async function testSetup() {
+  showMsg('Sending test email...', 'ok');
+  try {
+    const r = await fetch('/api/send_sos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lat: '26.9124', lng: '75.7873', audio: null })
+    });
+    const d = await r.json();
+    if (d.status === 'success') {
+      showMsg('✅ Test email sent! Check your contacts inbox.', 'ok');
+    } else {
+      showMsg('❌ ' + d.message + ' | ' + (d.errors||[]).join(', '), 'error');
+    }
+  } catch(e) {
+    showMsg('Error: ' + e.message, 'error');
+  }
+}
+
+function showMsg(text, type) {
+  const el = document.getElementById('saveMsg');
+  el.textContent = text;
+  el.className   = type;
+  el.style.display = 'block';
+  setTimeout(() => el.style.display='none', 6000);
+}
+</script>
+</body>
+</html>
